@@ -8,20 +8,32 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
+
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: Kimuka3_db
+      MYSQL_USER: kimuka
+      MYSQL_PASSWORD: kimuka123
+
     ports:
       - "3306:3306"
+
     volumes:
       - db_data:/var/lib/mysql
-      # Este script se ejecuta SOLO la primera vez que se crea el volumen,
-      # creando las tablas automáticamente a partir de tu schema.
       - ./3_0_API/schema_kimuka3.sql:/docker-entrypoint-initdb.d/schema.sql
+
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot123"
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -32,16 +44,20 @@ services:
   backend:
     build:
       context: ./3_0_API
+
     restart: unless-stopped
+
     environment:
-      SECRET_KEY: ${SECRET_KEY}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      SECRET_KEY: kimuka-jwt-secret-key-titan-sports-2026
+      MYSQL_USER: kimuka
+      MYSQL_PASSWORD: kimuka123
       MYSQL_HOST: db
       MYSQL_PORT: 3306
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_DATABASE: Kimuka3_db
+
     ports:
       - "5000:5000"
+
     depends_on:
       db:
         condition: service_healthy
@@ -52,17 +68,24 @@ services:
   frontend:
     build:
       context: "./config tu"
+
     restart: unless-stopped
+
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
+      VITE_API_URL: http://localhost:5000
+
     ports:
       - "5173:5173"
+
     depends_on:
       - backend
-    # Evita que node_modules del contenedor se pisen con los del host
+
     volumes:
       - "./config tu:/app"
       - /app/node_modules
 
+# -------------------------------------------------------------------------
+# Volúmenes
+# -------------------------------------------------------------------------
 volumes:
   db_data:
