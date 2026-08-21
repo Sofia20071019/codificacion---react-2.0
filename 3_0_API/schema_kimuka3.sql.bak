@@ -53,9 +53,10 @@ CREATE TABLE Insumo (
     nombreInsumo VARCHAR(100),
     idCategoria VARCHAR(10),
     idUnidad VARCHAR(10),
+    cantidad DECIMAL(10,2) DEFAULT 0,
     CONSTRAINT fk_insumo_categoria FOREIGN KEY (idCategoria) REFERENCES Categoria(idCategoria),
     CONSTRAINT fk_insumo_unidad FOREIGN KEY (idUnidad) REFERENCES Unidad_Medida(idUnidad)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB; 
 
 -- Productos
 CREATE TABLE Producto (
